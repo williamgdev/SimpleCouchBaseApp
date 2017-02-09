@@ -1,0 +1,1 @@
+include ':app', ':couchbase-java-client-2.2.8', ':couchbase-core-io-1.2.9', ':rxjava-1.0.17'

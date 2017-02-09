@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('couchbase-java-client-2.2.8.jar'))
