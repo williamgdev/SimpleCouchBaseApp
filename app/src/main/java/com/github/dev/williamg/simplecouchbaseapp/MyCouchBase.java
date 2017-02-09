@@ -9,6 +9,8 @@ import com.couchbase.lite.DatabaseOptions;
 import com.couchbase.lite.Manager;
 import com.couchbase.lite.QueryOptions;
 import com.couchbase.lite.android.AndroidContext;
+import com.couchbase.lite.auth.Authenticator;
+import com.couchbase.lite.auth.AuthenticatorFactory;
 import com.couchbase.lite.replicator.Replication;
 
 import java.io.IOException;
@@ -62,22 +64,23 @@ public class MyCouchBase {
                 manager.getAllDatabaseNames()) {
             Log.d(TAG, "printValues: " + db);
         }
+
     }
 
     private void startReplications() throws CouchbaseLiteException {
         if (database != null) {
-            Replication pull = database.createPullReplication(createSyncURL(false));
+            //Replication pull = database.createPullReplication(createSyncURL(false));
             Replication push = database.createPushReplication(createSyncURL(false));
-            pull.setContinuous(true);
+            //pull.setContinuous(true);
             push.setContinuous(true);
-            pull.start();
+            //pull.start();
             push.start();
         }
     }
 
     private URL createSyncURL(boolean isEncrypted){
         URL syncURL = null;
-        String host = "https://127.0.0.1";
+        String host = "http://127.0.0.1";
         String port = "8091";
         String dbName = "beer-sample";
         try {
