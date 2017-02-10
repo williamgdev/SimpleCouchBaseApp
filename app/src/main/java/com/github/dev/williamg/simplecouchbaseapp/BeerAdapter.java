@@ -59,6 +59,7 @@ public class BeerAdapter extends RecyclerView.Adapter<BeerAdapter.BeerViewHolder
                 ((Activity) BeerAdapter.this.context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d(TAG, "run: Getting Rows");
                         queryEnumerator = query.getRows();
                         notifyDataSetChanged();
                     }
@@ -98,6 +99,7 @@ public class BeerAdapter extends RecyclerView.Adapter<BeerAdapter.BeerViewHolder
     }
 
     private Object getItem(int position) {
+        Log.d(TAG, "getItem: ");
         return queryEnumerator != null ?
                 queryEnumerator.getRow(position) :
                 null;
@@ -105,6 +107,7 @@ public class BeerAdapter extends RecyclerView.Adapter<BeerAdapter.BeerViewHolder
 
     @Override
     public int getItemCount() {
+        Log.d(TAG, "getItemCount: ");
         return queryEnumerator != null ?
                 queryEnumerator.getCount() :
                 0;
@@ -114,6 +117,7 @@ public class BeerAdapter extends RecyclerView.Adapter<BeerAdapter.BeerViewHolder
         TextView txtViewId, txtViewName;
         public BeerViewHolder(View view) {
             super(view);
+            Log.d(TAG, "BeerViewHolder: ");
             txtViewId = (TextView) view.findViewById(R.id.item_text_view_id);
             txtViewName = (TextView) view.findViewById(R.id.item_txt_view_name);
         }

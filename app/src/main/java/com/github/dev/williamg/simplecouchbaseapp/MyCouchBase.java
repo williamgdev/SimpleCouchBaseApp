@@ -33,7 +33,7 @@ public class MyCouchBase {
 
     //=== EDIT THESE TO ADAPT TO YOUR COUCHBASE INSTALLATION ===
     URL url;
-    public static final String stringURL = "http://127.0.0.1:4984/beer-sample";
+    public static final String stringURL = "http://192.168.1.155:4984/beer-sample";
     public static final String VIEW_BREWERY_BEERS = "brewery_beers";
 
     Manager manager;
@@ -52,7 +52,7 @@ public class MyCouchBase {
             e.printStackTrace();
         }
         try {
-            database = manager.getDatabase("ratingapp");
+            database = manager.getDatabase("beer-sample");
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
@@ -86,11 +86,13 @@ public class MyCouchBase {
         syncGatewaypush.setAuthenticator(new PasswordAuthorizer("couchbase_user", "mobile"));
         syncGatewaypush.setContinuous(true);
         syncGatewaypush.start();
+        Log.d(TAG, "continuousReplications: Push Start");
 
         syncGatewaypull = database.createPullReplication(url);
-        syncGatewaypush.setAuthenticator(new PasswordAuthorizer("couchbase_user", "mobile"));
+        syncGatewaypull.setAuthenticator(new PasswordAuthorizer("couchbase_user", "mobile"));
         syncGatewaypull.setContinuous(true);
         syncGatewaypull.start();
+        Log.d(TAG, "continuousReplications: Pull Start");
 
     }
 

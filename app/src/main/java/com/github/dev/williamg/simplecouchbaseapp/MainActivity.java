@@ -29,11 +29,12 @@ public class MainActivity extends AppCompatActivity {
         liveQuery.setGroupLevel(1);
         liveQuery.setDescending(true);
 
+
         recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
         recyclerView.setLayoutManager( new LinearLayoutManager(this));
 
         recyclerView.setAdapter(new BeerAdapter(liveQuery, this));
-        myCouchBase.close();
+        //myCouchBase.close();
     }
 
 
