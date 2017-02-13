@@ -6,9 +6,12 @@ import android.util.Log;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.Document;
+import com.couchbase.lite.DocumentChange;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Manager;
 import com.couchbase.lite.Mapper;
+import com.couchbase.lite.QueryOptions;
+import com.couchbase.lite.QueryRow;
 import com.couchbase.lite.auth.AuthenticatorFactory;
 import com.couchbase.lite.auth.PasswordAuthorizer;
 import com.couchbase.lite.auth.TokenAuthenticator;
@@ -18,13 +21,16 @@ import com.couchbase.lite.Reducer;
 import com.couchbase.lite.View;
 import com.couchbase.lite.android.AndroidContext;
 import com.couchbase.lite.replicator.Replication;
+import com.fasterxml.jackson.databind.deser.std.MapEntryDeserializer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by wgutierrez on 2/9/17.
@@ -39,6 +45,7 @@ public class MyCouchBase {
     public static final String stringURL = "http://192.168.1.154:4985/beer-sample";
 //    public static final String stringURL = "http://192.168.43.212:4984/beer-sample";
     public static final String VIEW_BREWERY_BEERS = "brewery_beers";
+    public static String DOCUMENT_KEY_DATA = "data";
 
     Manager manager;
     Database database;
@@ -62,13 +69,21 @@ public class MyCouchBase {
         }
 
 //        saveMovie(manager, database, "123");
-        retrieveMovie(manager, database, "123");
+//        retrieveMovie(manager, database, "123");
 //        registerViews();
 
         continuousReplications();
 
 //        startListener();
 
+        database.addChangeListener(new Database.ChangeListener() {
+            @Override
+            public void changed(Database.ChangeEvent event) {
+                for (DocumentChange change : event.getChanges()) {
+                    Log.d(TAG, "changed: " + change.getDocumentId() + ": ");
+                }
+            }
+        });
 //        printValues();
     }
 
@@ -90,31 +105,31 @@ public class MyCouchBase {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-//        syncGatewaypush = database.createPushReplication(url);
-////        syncGatewaypush.setAuthenticator(AuthenticatorFactory.createBasicAuthenticator("couchbase_user", "mobile"));
-//        syncGatewaypush.setContinuous(true);
-//        syncGatewaypush.addChangeListener(new Replication.ChangeListener() {
-//            @Override
-//            public void changed(Replication.ChangeEvent event) {
-//                // will be called back when the push replication status changes
-//                switch (syncGatewaypush.getStatus()) {
-//                    case REPLICATION_STOPPED:
-//                        Log.d(TAG, "changed: PUSH STOOPED:" + syncGatewaypush.getStatus());
-//                        break;
-//                    case REPLICATION_OFFLINE:
-//                        Log.d(TAG, "changed: PUSH OFFLINE:" + syncGatewaypush.getStatus());
-//                        break;
-//                    case REPLICATION_IDLE:
-//                        Log.d(TAG, "changed: PUSH IDLE:" + syncGatewaypush.getStatus());
-//                        break;
-//                    case REPLICATION_ACTIVE:
-//                        Log.d(TAG, "changed: PUSH Active:" + syncGatewaypush.getStatus());
-//                        break;
-//                }
-//            }
-//        });
-//        syncGatewaypush.start();
-//        Log.d(TAG, "continuousReplications: Push Start");
+        syncGatewaypush = database.createPushReplication(url);
+//        syncGatewaypush.setAuthenticator(AuthenticatorFactory.createBasicAuthenticator("couchbase_user", "mobile"));
+        syncGatewaypush.setContinuous(true);
+        syncGatewaypush.addChangeListener(new Replication.ChangeListener() {
+            @Override
+            public void changed(Replication.ChangeEvent event) {
+                // will be called back when the push replication status changes
+                switch (syncGatewaypush.getStatus()) {
+                    case REPLICATION_STOPPED:
+                        Log.d(TAG, "changed: PUSH STOOPED:" + syncGatewaypush.getStatus());
+                        break;
+                    case REPLICATION_OFFLINE:
+                        Log.d(TAG, "changed: PUSH OFFLINE:" + syncGatewaypush.getStatus());
+                        break;
+                    case REPLICATION_IDLE:
+                        Log.d(TAG, "changed: PUSH IDLE:" + syncGatewaypush.getStatus());
+                        break;
+                    case REPLICATION_ACTIVE:
+                        Log.d(TAG, "changed: PUSH Active:" + syncGatewaypush.getStatus());
+                        break;
+                }
+            }
+        });
+        syncGatewaypush.start();
+        Log.d(TAG, "continuousReplications: Push Start");
 
         syncGatewaypull = database.createPullReplication(url);
 //        syncGatewaypull.setAuthenticator(AuthenticatorFactory.createBasicAuthenticator("couchbase_user", "mobile"));
@@ -192,7 +207,7 @@ public class MyCouchBase {
     private void saveMovie(Manager manager, Database couchDb, String docId) {
         Map<String, Object> docContent = new HashMap<String, Object>();
         docContent.put("message", "Hey Couchbase Lite");
-        docContent.put("data", "William Gutierrez Torriente.");
+        docContent.put(DOCUMENT_KEY_DATA, "William Gutierrez Torriente.");
         Log.i("saveMovie", "docContent=" + String.valueOf(docContent));
 
         // create an empty document, add content and write it to the couchDb
@@ -211,6 +226,48 @@ public class MyCouchBase {
 
 
         Log.i("TAG", "jsonString>>>" + data);
+    }
+
+    public void logAllDocuments(){
+        try {
+            for (Map.Entry<String, Object> doc :
+                    database.getAllDocs(new QueryOptions()).entrySet()) {
+                Log.d(TAG, "logAllDocuments: Name: " + doc.getValue().toString());
+            }
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+            Log.e(TAG, "logAllDocuments: " + e.getMessage());
+        }
+    }
+
+    public List<String> getAllDocumentsId(){
+        List<String> documents = new ArrayList<>();
+        try {
+            for ( Object doc :
+                    ((ArrayList)database.getAllDocs(new QueryOptions()).get("rows")) {
+                documents.add(doc.getProperty("key").toString());
+            }
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+            Log.e(TAG, "getAllDocuments: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public void saveDocument(String text) {
+        Map<String, Object> docContent = new HashMap();
+        docContent.put("message", "Hey Couchbase Lite, I'm a new document");
+        docContent.put(DOCUMENT_KEY_DATA, text);
+        Log.i(TAG, "docContent=" + String.valueOf(docContent));
+
+        // create an empty document, add content and write it to the couchDb
+        Document document = database.createDocument();
+        try {
+            document.putProperties(docContent);
+            Log.d(TAG, "saveDocument: " + "Document written to couchDb named " + database + " with ID = " + document.getId());
+        } catch (CouchbaseLiteException e) {
+            Log.i(TAG, "saveDocument: Failed to write document to Couchbase database!");
+        }
     }
 
 }
