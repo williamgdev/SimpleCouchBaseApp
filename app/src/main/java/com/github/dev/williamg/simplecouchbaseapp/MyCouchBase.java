@@ -59,7 +59,7 @@ public class MyCouchBase {
     Replication peerPull;
     Replication peerPush;
 
-    public MyCouchBase(Context context) {
+    public MyCouchBase(final Context context) {
         try {
             /** Enable logging in the application for all tags */
             Manager.enableLogging(TAG, Log.VERBOSE);
@@ -80,24 +80,9 @@ public class MyCouchBase {
 
 //        startListener();
 
-        database.addChangeListener(new Database.ChangeListener() {
-            @Override
-            public void changed(Database.ChangeEvent event) {
-                for (DocumentChange change : event.getChanges()) {
-                    Log.d(TAG, "changed: " + change.getDocumentId() + ": ");
-                }
-            }
-        });
+
 
 //        printValues();
-    }
-
-    /**
-     * Start the Couchbase Lite Listener without any credentials for this demo.
-     */
-    private void startListener() {
-        LiteListener listener = new LiteListener(manager, 50000, new Credentials("couchbase_user", "mobile"));
-
     }
 
     /**
@@ -134,7 +119,6 @@ public class MyCouchBase {
             }
         });
         syncGatewaypush.start();
-        Log.d(TAG, "continuousReplications: Push Start");
 
         syncGatewaypull = database.createPullReplication(url);
 //        syncGatewaypull.setAuthenticator(AuthenticatorFactory.createBasicAuthenticator("couchbase_user", "mobile"));
@@ -161,7 +145,6 @@ public class MyCouchBase {
             }
         });
         syncGatewaypull.start();
-        Log.d(TAG, "continuousReplications: Pull Start");
 
     }
 
@@ -260,8 +243,6 @@ public class MyCouchBase {
             Document document = row.getDocument();
             documents.add(document);
         }
-
-
         return documents;
 
     }
@@ -282,4 +263,15 @@ public class MyCouchBase {
         }
     }
 
+    public void listenDataBaseChanges(final DocumentAdapter adapter) {
+        database.addChangeListener(new Database.ChangeListener() {
+            @Override
+            public void changed(Database.ChangeEvent event) {
+//                for (DocumentChange change : event.getChanges()) {
+//
+//                }
+                adapter.resetDocs(getAllDocumentsId());
+            }
+        });
+    }
 }

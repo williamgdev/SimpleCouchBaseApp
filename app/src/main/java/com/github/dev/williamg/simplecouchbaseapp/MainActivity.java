@@ -49,13 +49,30 @@ public class MainActivity extends AppCompatActivity {
         documentAdapter = new DocumentAdapter(myCouchBase.getAllDocumentsId(), this);
         recyclerView.setAdapter(documentAdapter);
 //        myCouchBase.close();
+        myCouchBase.database.addChangeListener(new Database.ChangeListener() {
+            @Override
+            public void changed(Database.ChangeEvent event) {
+//                for (DocumentChange change : event.getChanges()) {
+//
+//                }
+                updateUI();
+            }
+        });
 
     }
 
     public void onGO(View view) {
-
         myCouchBase.saveDocument(editText.getText().toString());
-        documentAdapter.resetDocs(myCouchBase.getAllDocumentsId());
-        recyclerView.setAdapter(documentAdapter);
+        updateUI();
+    }
+
+    private void updateUI(){
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                documentAdapter.resetDocs(myCouchBase.getAllDocumentsId());
+                recyclerView.setAdapter(documentAdapter);
+            }
+        });
     }
 }
