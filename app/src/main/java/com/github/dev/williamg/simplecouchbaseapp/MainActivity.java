@@ -6,10 +6,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Database;
+import com.couchbase.lite.Document;
 import com.couchbase.lite.LiveQuery;
+import com.couchbase.lite.Manager;
 import com.couchbase.lite.QueryRow;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -23,19 +29,20 @@ public class MainActivity extends AppCompatActivity {
 
         MyCouchBase myCouchBase = new MyCouchBase(this);
 
-        LiveQuery liveQuery = myCouchBase.database.getView(MyCouchBase.VIEW_BREWERY_BEERS)
-                .createQuery()
-                .toLiveQuery();
-        liveQuery.setGroupLevel(1);
-        liveQuery.setDescending(true);
+//        LiveQuery liveQuery = myCouchBase.database.getView(MyCouchBase.VIEW_BREWERY_BEERS)
+//                .createQuery()
+//                .toLiveQuery();
+//        liveQuery.setGroupLevel(1);
+//        liveQuery.setDescending(true);
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
-        recyclerView.setLayoutManager( new LinearLayoutManager(this));
-
-        recyclerView.setAdapter(new BeerAdapter(liveQuery, this));
+//        recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
+//        recyclerView.setLayoutManager( new LinearLayoutManager(this));
+//
+//        recyclerView.setAdapter(new BeerAdapter(liveQuery, this));
         //myCouchBase.close();
     }
+
 
 
 }
