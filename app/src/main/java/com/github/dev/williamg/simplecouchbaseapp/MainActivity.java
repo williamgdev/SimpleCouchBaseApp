@@ -47,11 +47,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager( new LinearLayoutManager(this));
 
         recyclerView.setAdapter(new DocumentAdapter(myCouchBase.getAllDocumentsId(), this));
-        myCouchBase.close();
+//        myCouchBase.close();
 
     }
 
     public void onGO(View view) {
+
         myCouchBase.saveDocument(editText.getText().toString());
     }
 }

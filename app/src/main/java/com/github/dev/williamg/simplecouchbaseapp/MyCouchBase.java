@@ -10,6 +10,8 @@ import com.couchbase.lite.DocumentChange;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Manager;
 import com.couchbase.lite.Mapper;
+import com.couchbase.lite.Query;
+import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryOptions;
 import com.couchbase.lite.QueryRow;
 import com.couchbase.lite.auth.AuthenticatorFactory;
@@ -28,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,8 +45,10 @@ public class MyCouchBase {
 
     //=== EDIT THESE TO ADAPT TO YOUR COUCHBASE INSTALLATION ===
     URL url;
-    public static final String stringURL = "http://192.168.1.154:4985/beer-sample";
-//    public static final String stringURL = "http://192.168.43.212:4984/beer-sample";
+//    public static final String stringURL = "http://192.168.1.154:4985/beer-sample"; //QANet
+//    public static final String stringURL = "http://192.168.43.212:4984/beer-sample"; //MobileData
+    public static final String stringURL = "http://10.200.248.74:4984/beer-sample"; //RandDevices
+
     public static final String VIEW_BREWERY_BEERS = "brewery_beers";
     public static String DOCUMENT_KEY_DATA = "data";
 
@@ -57,7 +62,7 @@ public class MyCouchBase {
     public MyCouchBase(Context context) {
         try {
             /** Enable logging in the application for all tags */
-            Manager.enableLogging(TAG , Log.VERBOSE);
+            Manager.enableLogging(TAG, Log.VERBOSE);
             manager = new Manager(new AndroidContext(context), Manager.DEFAULT_OPTIONS);
         } catch (IOException e) {
             e.printStackTrace();
@@ -71,7 +76,6 @@ public class MyCouchBase {
 //        saveMovie(manager, database, "123");
 //        retrieveMovie(manager, database, "123");
 //        registerViews();
-
         continuousReplications();
 
 //        startListener();
@@ -84,6 +88,7 @@ public class MyCouchBase {
                 }
             }
         });
+
 //        printValues();
     }
 
@@ -139,20 +144,20 @@ public class MyCouchBase {
             @Override
             public void changed(Replication.ChangeEvent event) {
                 // will be called back when the pull replication status changes
-                 switch (syncGatewaypull.getStatus()) {
-                     case REPLICATION_STOPPED:
-                         Log.d(TAG, "changed: PULL STOOPED:" + syncGatewaypull.getStatus());
-                         break;
-                     case REPLICATION_OFFLINE:
-                         Log.d(TAG, "changed: PULL OFFLINE:" + syncGatewaypull.getStatus());
-                         break;
-                     case REPLICATION_IDLE:
-                         Log.d(TAG, "changed: PULL IDLE:" + syncGatewaypull.getStatus());
-                         break;
-                     case REPLICATION_ACTIVE:
-                         Log.d(TAG, "changed: PULL Active:" + syncGatewaypull.getStatus());
-                         break;
-                 }
+                switch (syncGatewaypull.getStatus()) {
+                    case REPLICATION_STOPPED:
+                        Log.d(TAG, "changed: PULL STOOPED:" + syncGatewaypull.getStatus());
+                        break;
+                    case REPLICATION_OFFLINE:
+                        Log.d(TAG, "changed: PULL OFFLINE:" + syncGatewaypull.getStatus());
+                        break;
+                    case REPLICATION_IDLE:
+                        Log.d(TAG, "changed: PULL IDLE:" + syncGatewaypull.getStatus());
+                        break;
+                    case REPLICATION_ACTIVE:
+                        Log.d(TAG, "changed: PULL Active:" + syncGatewaypull.getStatus());
+                        break;
+                }
             }
         });
         syncGatewaypull.start();
@@ -160,12 +165,12 @@ public class MyCouchBase {
 
     }
 
-    public void stopSyncGatewayReplication(){
+    public void stopSyncGatewayReplication() {
         syncGatewaypull.stop();
         syncGatewaypush.stop();
     }
 
-    public void startSyncGatewayReplication(){
+    public void startSyncGatewayReplication() {
         syncGatewaypull.start();
         syncGatewaypush.start();
     }
@@ -204,13 +209,13 @@ public class MyCouchBase {
         manager.close();
     }
 
-    private void saveMovie(Manager manager, Database couchDb, String docId) {
+    public void saveMovie(Manager manager, Database couchDb, String docId) {
         Map<String, Object> docContent = new HashMap<String, Object>();
         docContent.put("message", "Hey Couchbase Lite");
-        docContent.put(DOCUMENT_KEY_DATA, "William Gutierrez Torriente.");
+        docContent.put("data", "Wil Gutier.");
         Log.i("saveMovie", "docContent=" + String.valueOf(docContent));
 
-        // create an empty document, add content and write it to the couchDb
+        // create an empty document, add content and write it to the couchD
         Document document = new Document(couchDb, docId);
         try {
             document.putProperties(docContent);
@@ -222,13 +227,13 @@ public class MyCouchBase {
 
     private void retrieveMovie(Manager manager, Database couchDb, String docId) {
         Document retrievedDocument = couchDb.getDocument(docId); // Retrieve the document by id
-        String data = (String)retrievedDocument.getProperties().get("data");
+        String data = (String) retrievedDocument.getProperties().get("data");
 
 
         Log.i("TAG", "jsonString>>>" + data);
     }
 
-    public void logAllDocuments(){
+    public void logAllDocuments() {
         try {
             for (Map.Entry<String, Object> doc :
                     database.getAllDocs(new QueryOptions()).entrySet()) {
@@ -240,18 +245,25 @@ public class MyCouchBase {
         }
     }
 
-    public List<String> getAllDocumentsId(){
-        List<String> documents = new ArrayList<>();
+    public List<Document> getAllDocumentsId() {
+        List<Document> documents = new ArrayList<>();
+        QueryEnumerator queryEnumerator = null;
         try {
-            for ( Object doc :
-                    ((ArrayList)database.getAllDocs(new QueryOptions()).get("rows")) {
-                documents.add(doc.getProperty("key").toString());
-            }
+            database.getAllDocs(new QueryOptions());
+            Query queryAllDocs = database.createAllDocumentsQuery();
+            queryEnumerator = queryAllDocs.run();
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
-            Log.e(TAG, "getAllDocuments: " + e.getMessage());
         }
-        return null;
+        for (Iterator<QueryRow> it = queryEnumerator; it.hasNext(); ) {
+            QueryRow row = it.next();
+            Document document = row.getDocument();
+            documents.add(document);
+        }
+
+
+        return documents;
+
     }
 
     public void saveDocument(String text) {
