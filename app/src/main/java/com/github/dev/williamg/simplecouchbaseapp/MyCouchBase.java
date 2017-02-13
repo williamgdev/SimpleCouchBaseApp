@@ -36,8 +36,8 @@ public class MyCouchBase {
 
     //=== EDIT THESE TO ADAPT TO YOUR COUCHBASE INSTALLATION ===
     URL url;
-//    public static final String stringURL = "http://192.168.1.155:4985/beer-sample";
-    public static final String stringURL = "http://192.168.43.212:4984/beer-sample";
+    public static final String stringURL = "http://192.168.1.154:4985/beer-sample";
+//    public static final String stringURL = "http://192.168.43.212:4984/beer-sample";
     public static final String VIEW_BREWERY_BEERS = "brewery_beers";
 
     Manager manager;
@@ -56,12 +56,12 @@ public class MyCouchBase {
             e.printStackTrace();
         }
         try {
-            database = manager.getExistingDatabase("beer-sample");
+            database = manager.getDatabase("beer-sample");
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
         }
 
-        saveMovie(manager, database, "123");
+//        saveMovie(manager, database, "123");
         retrieveMovie(manager, database, "123");
 //        registerViews();
 
@@ -90,31 +90,31 @@ public class MyCouchBase {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        syncGatewaypush = database.createPushReplication(url);
-//        syncGatewaypush.setAuthenticator(AuthenticatorFactory.createBasicAuthenticator("couchbase_user", "mobile"));
-        syncGatewaypush.setContinuous(true);
-        syncGatewaypush.addChangeListener(new Replication.ChangeListener() {
-            @Override
-            public void changed(Replication.ChangeEvent event) {
-                // will be called back when the push replication status changes
-                switch (syncGatewaypush.getStatus()) {
-                    case REPLICATION_STOPPED:
-                        Log.d(TAG, "changed: PUSH STOOPED:" + syncGatewaypush.getStatus());
-                        break;
-                    case REPLICATION_OFFLINE:
-                        Log.d(TAG, "changed: PUSH OFFLINE:" + syncGatewaypush.getStatus());
-                        break;
-                    case REPLICATION_IDLE:
-                        Log.d(TAG, "changed: PUSH IDLE:" + syncGatewaypush.getStatus());
-                        break;
-                    case REPLICATION_ACTIVE:
-                        Log.d(TAG, "changed: PUSH Active:" + syncGatewaypush.getStatus());
-                        break;
-                }
-            }
-        });
-        syncGatewaypush.start();
-        Log.d(TAG, "continuousReplications: Push Start");
+//        syncGatewaypush = database.createPushReplication(url);
+////        syncGatewaypush.setAuthenticator(AuthenticatorFactory.createBasicAuthenticator("couchbase_user", "mobile"));
+//        syncGatewaypush.setContinuous(true);
+//        syncGatewaypush.addChangeListener(new Replication.ChangeListener() {
+//            @Override
+//            public void changed(Replication.ChangeEvent event) {
+//                // will be called back when the push replication status changes
+//                switch (syncGatewaypush.getStatus()) {
+//                    case REPLICATION_STOPPED:
+//                        Log.d(TAG, "changed: PUSH STOOPED:" + syncGatewaypush.getStatus());
+//                        break;
+//                    case REPLICATION_OFFLINE:
+//                        Log.d(TAG, "changed: PUSH OFFLINE:" + syncGatewaypush.getStatus());
+//                        break;
+//                    case REPLICATION_IDLE:
+//                        Log.d(TAG, "changed: PUSH IDLE:" + syncGatewaypush.getStatus());
+//                        break;
+//                    case REPLICATION_ACTIVE:
+//                        Log.d(TAG, "changed: PUSH Active:" + syncGatewaypush.getStatus());
+//                        break;
+//                }
+//            }
+//        });
+//        syncGatewaypush.start();
+//        Log.d(TAG, "continuousReplications: Push Start");
 
         syncGatewaypull = database.createPullReplication(url);
 //        syncGatewaypull.setAuthenticator(AuthenticatorFactory.createBasicAuthenticator("couchbase_user", "mobile"));
