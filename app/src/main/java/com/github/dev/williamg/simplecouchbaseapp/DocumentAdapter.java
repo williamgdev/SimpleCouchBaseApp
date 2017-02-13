@@ -23,8 +23,21 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
 
     public DocumentAdapter(List<Document> documents, Context context){
         this.context = context;
-        this.documents = documents;
+        resetDocs(documents);
+    }
 
+    public void addMoreDocs(List<Document> documents){
+        if(this.documents == null) {
+            this.documents = documents;
+        } else {
+            this.documents.addAll(documents);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void resetDocs(List<Document> documents){
+        this.documents = documents;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -36,7 +49,6 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
 
     @Override
     public void onBindViewHolder(DocumentViewHolder holder, int position) {
-        Log.d(TAG, "onBindViewHolder: Showing Data");
         final Document doc = getDocumentItem(position);
         holder.txtViewId.setText(doc.getId());
         if (doc.getProperty(MyCouchBase.DOCUMENT_KEY_DATA) != null){
@@ -46,7 +58,6 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
     }
 
     private Document getDocumentItem(int position) {
-        Log.d(TAG, "getItem: ");
         return documents != null ?
                 documents.get(position):
                 null;
@@ -64,7 +75,6 @@ public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.Docume
         TextView txtViewId, txtViewName;
         public DocumentViewHolder(View itemView) {
             super(itemView);
-            Log.d(TAG, "BeerViewHolder: ");
             txtViewId = (TextView) itemView.findViewById(R.id.item_text_view_id);
             txtViewName = (TextView) itemView.findViewById(R.id.item_txt_view_name);
         }

@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     MyCouchBase myCouchBase;
     EditText editText;
+    private DocumentAdapter documentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
         recyclerView.setLayoutManager( new LinearLayoutManager(this));
-
-        recyclerView.setAdapter(new DocumentAdapter(myCouchBase.getAllDocumentsId(), this));
+        documentAdapter = new DocumentAdapter(myCouchBase.getAllDocumentsId(), this);
+        recyclerView.setAdapter(documentAdapter);
 //        myCouchBase.close();
 
     }
@@ -54,5 +55,7 @@ public class MainActivity extends AppCompatActivity {
     public void onGO(View view) {
 
         myCouchBase.saveDocument(editText.getText().toString());
+        documentAdapter.resetDocs(myCouchBase.getAllDocumentsId());
+        recyclerView.setAdapter(documentAdapter);
     }
 }
