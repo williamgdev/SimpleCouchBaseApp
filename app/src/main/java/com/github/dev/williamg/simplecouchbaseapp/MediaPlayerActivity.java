@@ -1,6 +1,7 @@
 package com.github.dev.williamg.simplecouchbaseapp;
 
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -28,16 +29,8 @@ public class MediaPlayerActivity extends AppCompatActivity {
         /**
          * Chnage this code bellow when you are getting the audio file from the Database
          */
-        mediaPlayer = MediaPlayer.create(this, R.raw.music);
+        mediaPlayer = MediaPlayer.create(this, Uri.parse(getIntent().getStringExtra("music")));
         mediaPlayer.start();
-//        try {
-//            String musicPath = "android.resource://" + getPackageName() + "/" + R.raw.music;
-//            mediaPlayer.setDataSource(musicPath);
-//            mediaPlayer.prepare();
-//            mediaPlayer.start();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
     }
 

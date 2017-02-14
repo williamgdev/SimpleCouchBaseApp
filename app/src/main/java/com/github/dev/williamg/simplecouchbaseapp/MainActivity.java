@@ -13,6 +13,7 @@ import com.couchbase.lite.Database;
 import com.couchbase.lite.DocumentChange;
 
 import java.io.InputStream;
+import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,14 +51,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void playMusic() {
-        InputStream music = myCouchBase.getMusicFile();
-        if (music != null) {
+        URL musicPath = myCouchBase.getMusicFileURL();
+        if (musicPath != null) {
             Log.d(TAG, "playMusic: Play Music");
             /**
              * Find the way to send the FileStream to the MediaPlayerActivity
              *
              */
             Intent intent = new Intent(this, MediaPlayerActivity.class);
+            intent.putExtra("music", musicPath.toString());
             startActivity(intent);
         }
     }

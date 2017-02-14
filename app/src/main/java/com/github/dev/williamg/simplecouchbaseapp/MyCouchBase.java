@@ -280,6 +280,14 @@ public class MyCouchBase {
         }
     }
 
+    public URL getMusicFileURL() {
+        Document doc = database.getDocument("music");
+        Revision rev = doc.getCurrentRevision();
+        Attachment att = rev.getAttachment("music.mp3");
+        return att.getContentURL();
+
+    }
+
     public InputStream getMusicFile() {
         Document doc = database.getDocument("music");
         Revision rev = doc.getCurrentRevision();
