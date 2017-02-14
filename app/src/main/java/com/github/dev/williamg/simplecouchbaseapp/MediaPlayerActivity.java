@@ -28,15 +28,16 @@ public class MediaPlayerActivity extends AppCompatActivity {
         /**
          * Chnage this code bellow when you are getting the audio file from the Database
          */
-        mediaPlayer = new MediaPlayer();
-        try {
-            String musicPath = "android.resource://" + getPackageName() + "/" + R.raw.music;
-            mediaPlayer.setDataSource(musicPath);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mediaPlayer = MediaPlayer.create(this, R.raw.music);
+        mediaPlayer.start();
+//        try {
+//            String musicPath = "android.resource://" + getPackageName() + "/" + R.raw.music;
+//            mediaPlayer.setDataSource(musicPath);
+//            mediaPlayer.prepare();
+//            mediaPlayer.start();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -44,6 +45,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
     public void onPlayerClose(View view) {
         if(mediaPlayer.isPlaying())
             mediaPlayer.stop();
-        this.onDestroy();
+        this.finish();
     }
 }
