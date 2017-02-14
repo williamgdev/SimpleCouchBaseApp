@@ -4,10 +4,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
 import com.couchbase.lite.Database;
+import com.couchbase.lite.DocumentChange;
+
+import java.io.InputStream;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -26,27 +30,40 @@ public class MainActivity extends AppCompatActivity {
         editText = (EditText) findViewById(R.id.main_text);
 
         recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
-        recyclerView.setLayoutManager( new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         documentAdapter = new DocumentAdapter(myCouchBase.getAllDocumentsId(), this);
         recyclerView.setAdapter(documentAdapter);
         myCouchBase.database.addChangeListener(new Database.ChangeListener() {
             @Override
             public void changed(Database.ChangeEvent event) {
-//                for (DocumentChange change : event.getChanges()) {
-//
-//                }
+                for (DocumentChange change : event.getChanges()) {
+                    if(change.getDocumentId().equals("music")){
+                        //Receiving Music File
+                        playMusic();
+                    }
+                }
                 updateUI();
             }
         });
 
     }
 
+    private void playMusic() {
+        //Play Music here
+        InputStream music = myCouchBase.getMusicFile();
+        if (music != null)
+            Log.d(TAG, "playMusic: Play Music");
+    }
+
     public void onGO(View view) {
-        myCouchBase.saveDocument(editText.getText().toString());
+        if (editText.getText().toString().equals(""))
+            loadFile();
+        else
+            myCouchBase.saveDocument(editText.getText().toString());
         updateUI();
     }
 
-    private void updateUI(){
+    private void updateUI() {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -62,4 +79,10 @@ public class MainActivity extends AppCompatActivity {
         myCouchBase.stopSyncGatewayReplication();
         myCouchBase.close();
     }
+
+    private void loadFile() {
+        InputStream stream = getResources().openRawResource(R.raw.music);
+        myCouchBase.saveAttachment("music", stream);
+    }
+
 }

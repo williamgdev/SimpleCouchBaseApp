@@ -3,6 +3,7 @@ package com.github.dev.williamg.simplecouchbaseapp;
 import android.content.Context;
 import android.util.Log;
 
+import com.couchbase.lite.Attachment;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.Document;
@@ -14,11 +15,14 @@ import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryOptions;
 import com.couchbase.lite.QueryRow;
 import com.couchbase.lite.Reducer;
+import com.couchbase.lite.Revision;
+import com.couchbase.lite.UnsavedRevision;
 import com.couchbase.lite.View;
 import com.couchbase.lite.android.AndroidContext;
 import com.couchbase.lite.replicator.Replication;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -39,7 +43,7 @@ public class MyCouchBase {
     URL url;
 //    public static final String stringURL = "http://192.168.1.154:4985/beer-sample"; //QANet
 //    public static final String stringURL = "http://192.168.43.212:4984/beer-sample"; //MobileData
-    public static final String stringURL = "http://10.200.248.74:4984/beer-sample"; //RandDevices
+    public static final String stringURL = "http://10.200.248.70:4984/beer-sample"; //RandDevices
 
     public static final String VIEW_BREWERY_BEERS = "brewery_beers";
     public static String DOCUMENT_KEY_DATA = "data";
@@ -251,4 +255,44 @@ public class MyCouchBase {
         }
     }
 
+    public void saveAttachment(String music, InputStream stream) {
+        Document doc = database.getDocument(music);
+        /**
+         * If you do not have any music Revision
+         * uncomment this code bellow
+         */
+        /*
+        if (doc.getCurrentRevision() == null) {
+            UnsavedRevision newRev = doc.createRevision();
+            try {
+                newRev.save();
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
+            }
+        }
+         */
+        UnsavedRevision newRev = doc.getCurrentRevision().createRevision();
+        newRev.setAttachment("music.mp3", "audio/mpeg3", stream);
+        try {
+            newRev.save();
+        } catch (CouchbaseLiteException e) {
+            Log.e(TAG, "saveAttachment: Error " + e.getMessage());
+        }
+    }
+
+    public InputStream getMusicFile() {
+        Document doc = database.getDocument("music");
+        Revision rev = doc.getCurrentRevision();
+        Attachment att = rev.getAttachment("music.mp3");
+        InputStream music = null;
+        if (att != null) {
+            try {
+                return att.getContent();
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
+            }
+        }
+        return music;
+
+    }
 }
