@@ -6,7 +6,6 @@ import android.util.Log;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.Document;
-import com.couchbase.lite.DocumentChange;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Manager;
 import com.couchbase.lite.Mapper;
@@ -14,16 +13,10 @@ import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryOptions;
 import com.couchbase.lite.QueryRow;
-import com.couchbase.lite.auth.AuthenticatorFactory;
-import com.couchbase.lite.auth.PasswordAuthorizer;
-import com.couchbase.lite.auth.TokenAuthenticator;
-import com.couchbase.lite.listener.Credentials;
-import com.couchbase.lite.listener.LiteListener;
 import com.couchbase.lite.Reducer;
 import com.couchbase.lite.View;
 import com.couchbase.lite.android.AndroidContext;
 import com.couchbase.lite.replicator.Replication;
-import com.fasterxml.jackson.databind.deser.std.MapEntryDeserializer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -33,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created by wgutierrez on 2/9/17.
@@ -77,11 +69,7 @@ public class MyCouchBase {
 //        retrieveMovie(manager, database, "123");
 //        registerViews();
         continuousReplications();
-
 //        startListener();
-
-
-
 //        printValues();
     }
 
@@ -263,15 +251,4 @@ public class MyCouchBase {
         }
     }
 
-    public void listenDataBaseChanges(final DocumentAdapter adapter) {
-        database.addChangeListener(new Database.ChangeListener() {
-            @Override
-            public void changed(Database.ChangeEvent event) {
-//                for (DocumentChange change : event.getChanges()) {
-//
-//                }
-                adapter.resetDocs(getAllDocumentsId());
-            }
-        });
-    }
 }

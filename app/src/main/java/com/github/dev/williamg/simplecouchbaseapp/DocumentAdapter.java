@@ -2,7 +2,6 @@ package com.github.dev.williamg.simplecouchbaseapp;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +11,9 @@ import com.couchbase.lite.Document;
 
 import java.util.List;
 
-/**
- * Created by wgutierrez on 2/13/17.
- */
-
 public class DocumentAdapter extends RecyclerView.Adapter<DocumentAdapter.DocumentViewHolder> {
     Context context;
     List<Document> documents;
-    private String TAG = "DocumentAdapter";
 
     public DocumentAdapter(List<Document> documents, Context context){
         this.context = context;

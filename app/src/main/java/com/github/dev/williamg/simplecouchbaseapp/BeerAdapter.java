@@ -15,11 +15,6 @@ import com.couchbase.lite.LiveQuery;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
 
-import org.w3c.dom.Text;
-
-/**
- * Created by wgutierrez on 2/10/17.
- */
 public class BeerAdapter extends RecyclerView.Adapter<BeerAdapter.BeerViewHolder> {
     Context context;
     LiveQuery liveQuery;
