@@ -4,6 +4,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
     TextView txtTitle;
     Button bClose;
     MediaPlayer mediaPlayer;
+    private String TAG = "MediaPlayerActivity =>";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
         /**
          * Chnage this code bellow when you are getting the audio file from the Database
          */
+        Log.d(TAG, "onCreate: media url: " + Uri.parse(getIntent().getStringExtra("music")));
         mediaPlayer = MediaPlayer.create(this, Uri.parse(getIntent().getStringExtra("music")));
         mediaPlayer.start();
 

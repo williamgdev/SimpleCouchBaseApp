@@ -1,6 +1,8 @@
 package com.github.dev.williamg.simplecouchbaseapp;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +14,7 @@ import android.widget.EditText;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.DocumentChange;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     MyCouchBase myCouchBase;
     EditText editText;
     private DocumentAdapter documentAdapter;
+    private boolean isImSender;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,37 +33,43 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         myCouchBase = new MyCouchBase(this);
+
         editText = (EditText) findViewById(R.id.main_text);
 
         recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         documentAdapter = new DocumentAdapter(myCouchBase.getAllDocumentsId(), this);
         recyclerView.setAdapter(documentAdapter);
+
         myCouchBase.database.addChangeListener(new Database.ChangeListener() {
             @Override
             public void changed(Database.ChangeEvent event) {
                 for (DocumentChange change : event.getChanges()) {
                     if(change.getDocumentId().equals("music")){
                         //Receiving Music File
-                        playMusic();
+                        if (!isImSender)
+                            playMusic(change.getSource());
                     }
                 }
                 updateUI();
             }
         });
-
     }
 
-    private void playMusic() {
-        URL musicPath = myCouchBase.getMusicFileURL();
-        if (musicPath != null) {
+    private void playMusic(URL musicPath) {
+        InputStream musicStream = myCouchBase.getMusicFile();
+
+        File musicFile = new File(this.getFilesDir(), "music.mp3");
+        FileUtil.copyInputStreamToFile(musicStream, musicFile);
+//        mediaPlayer = MediaPlayer.create(this, Uri.parse(musicFile.getAbsolutePath()));
+        if (musicFile != null) {
             Log.d(TAG, "playMusic: Play Music");
             /**
              * Find the way to send the FileStream to the MediaPlayerActivity
              *
              */
             Intent intent = new Intent(this, MediaPlayerActivity.class);
-            intent.putExtra("music", musicPath.toString());
+            intent.putExtra("music", musicFile.getAbsolutePath().toString());
             startActivity(intent);
         }
     }
@@ -70,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         else
             myCouchBase.saveDocument(editText.getText().toString());
         updateUI();
+        isImSender = true;
     }
 
     private void updateUI() {
