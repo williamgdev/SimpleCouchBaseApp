@@ -1,5 +1,6 @@
 package com.github.dev.williamg.simplecouchbaseapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -49,10 +50,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void playMusic() {
-        //Play Music here
         InputStream music = myCouchBase.getMusicFile();
-        if (music != null)
+        if (music != null) {
             Log.d(TAG, "playMusic: Play Music");
+            /**
+             * Find the way to send the FileStream to the MediaPlayerActivity
+             *
+             */
+            Intent intent = new Intent(this, MediaPlayerActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void onGO(View view) {
